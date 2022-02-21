@@ -12,8 +12,36 @@ class Serial_thread:
         self.thread = threading.Thread(target = self.loop)
         self.thread.start()
         
+        self.readCurrent = ""
         
         
+    def loop (self):
+        while True:
+            if self.threadRun:
+                if not self.check_connect(): 
+                    self.serial_reconnect()
+                    continue
+                
+                self.serial_read()
+                self.ser.write('hi\n'.encode())
+                
+                print(self.readCurrent)
+                
+            
+            else:
+                print(self.port+" serial_thread stop...")
+                print("waiting thread restart...")
+                while not self.threadRun: pass
+                
+                
+    def serial_read (self):
+        if self.ser.readable():
+            time.sleep(0.03)
+            data = self.ser.read_all().decode()[:-2]
+            if data != "": 
+                self.readCurrent = data
+            
+
     def get_serial(self):
         for i in range(3,50):
             try: 
@@ -36,31 +64,29 @@ class Serial_thread:
         return True
 
 
-    def reconnect (self): 
+    def serial_disconnect (self):
+        self.ser.close()
+        self.ser = None
+        
+        
+    def serial_reconnect (self): 
         try: 
             self.ser = serial.Serial(self.port, self.baud)
             print("reconnect ser "+self.port)
         except: pass
         
         
-    def loop (self):
-        while True:
-            if self.threadRun:
-                if not self.check_connect():
-                    self.reconnect()
-            
-            else:
-                print(self.port+" serial_thread stop...")
-                print("waiting restart...")
-                while not self.threadRun:
-                    pass
+    
         
 
-import time
+
 if __name__ == "__main__":
+    import time
     test = Serial_thread()
     test.threadRun = True
-    time.sleep(5)
-    test.threadRun = False
+    #time.sleep(5)
+    #test.threadRun = False
+    #test.serial_disconnect()
+    
     
     
