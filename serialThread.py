@@ -17,21 +17,24 @@ class Serial_thread:
         
     def loop (self):
         while True:
-            if self.threadRun:
-                if not self.check_connect(): 
-                    self.serial_reconnect()
-                    continue
+            if not self.check_connect(): 
+                self.serial_reconnect()
+                    
+            try:
                 
-                self.serial_read()
-                self.ser.write('hi\n'.encode())
+                if self.threadRun:
+                    # 코드를 넣어주세요
+                    self.serial_read()
+                    self.ser.write('hi\n'.encode())
+                    
+                    print(self.readCurrent)
+                    
                 
-                print(self.readCurrent)
-                
-            
-            else:
-                print(self.port+" serial_thread stop...")
-                print("waiting thread restart...")
-                while not self.threadRun: pass
+                else:
+                    print(self.port+" serial_thread stop...")
+                    print("waiting thread restart...")
+                    while not self.threadRun: pass
+            except: pass
                 
                 
     def serial_read (self):
@@ -84,9 +87,9 @@ if __name__ == "__main__":
     import time
     test = Serial_thread()
     test.threadRun = True
-    #time.sleep(5)
-    #test.threadRun = False
-    #test.serial_disconnect()
+    time.sleep(5)
+    test.serial_disconnect()
+    test.threadRun = False
     
     
     
